@@ -122,22 +122,23 @@ ansible-playbook -i inventory/hosts.yml playbook.yml --ask-vault-pass
 # Пароль vault: 1954
 🔐 Система паролей
 Пароль базы данных
-Источник: Создается в Terraform (terraform/database.tf)
+Источник: Задается в Terraform (variables.tf)
 
 hcl
-resource "vkcs_db_instance" "mysql_db" {
-  root_password = "SecureDBpassword123!"  # Пароль БД
+variable "db_password" {
+  description = "Database password"
+  type        = string
+  sensitive   = true
+  default     = "7h78gs.p70aG85wU0"  # ← Пароль БД
 }
-Использование: Пароль вручную копируется в Ansible Vault
-
 Ansible Vault
 Пароль: 1954 - для расшифровки секретов
 
 Содержимое vault.yml:
 
 yaml
-db_password: "SecureDBpassword123!"       # Пароль MySQL
-app_db_password: "AppUserPass456!"        # Пароль пользователя приложения
+db_password: "7h78gs.p70aG85wU0"  # Пароль MySQL (из variables.tf)
+secret_key: "dddd"                # Секретный ключ приложения
 Управление vault:
 bash
 # Просмотр секретов
@@ -148,6 +149,7 @@ ansible-vault edit group_vars/all/vault.yml
 
 # Смена пароля
 ansible-vault rekey group_vars/all/vault.yml
+
 🧪 Тестирование
 После развертывания проверьте работу системы:
 
