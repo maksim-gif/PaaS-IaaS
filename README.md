@@ -18,13 +18,13 @@
 ```
 project/
 ├── ansible/
-│ ├── group_vars/all/ # Переменные (vars.yml, vault.yml)
-│ ├── inventory/ # Инвентаризация (hosts.yml)
-│ ├── roles/ # Роли Ansible
-│ │   ├── app/ # Flask приложение
-│ │   ├── haproxy/ # HAProxy + SSL
-│ │   └── hardening/ # Безопасность ОС
-│ └── playbook.yml # Основной плейбук
+│   ├── group_vars/all/ # Переменные (vars.yml, vault.yml)
+│   ├── inventory/ # Инвентаризация (hosts.yml)
+│   ├── roles/ # Роли Ansible
+│   │   ├── app/ # Flask приложение
+│   │   ├── haproxy/ # HAProxy + SSL
+│   │   └── hardening/ # Безопасность ОС
+│   └── playbook.yml # Основной плейбук
 ├── terraform/
 │   ├── main.tf # Основная конфигурация
 │   ├── database.tf # База данных
