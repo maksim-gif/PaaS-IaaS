@@ -54,7 +54,7 @@ terraform apply [параметры как выше]
 2. Получение IP адресов
 После выполнения terraform apply вы получите выходные данные:
 
-
+```
 Outputs:
 
 application_urls = {
@@ -70,10 +70,12 @@ public_ips = {
   "app2" = "212.111.86.216"      # ПУБЛИЧНЫЙ IP app2
   "haproxy" = "212.111.84.45"    # ПУБЛИЧНЫЙ IP haproxy
 }
+```
+
 3. Настройка Ansible Inventory
 Обновите ansible/inventory/hosts.yml с полученными IP:
 
-yaml
+```
 all:
   vars:
     ansible_user: ubuntu
@@ -99,6 +101,8 @@ database:
   hosts:
     db:
       ansible_host: "212.111.86.216"      # ПУБЛИЧНЫЙ IP Managed MySQL
+```
+
 4. Решение проблем с SSH подключением
 
 cd ansible
@@ -136,7 +140,7 @@ Ansible Vault
 
 Содержимое vault.yml:
 ```
-yaml
+
 db_password: "7h78gs.p70aG85wU0"  # Пароль MySQL (из variables.tf)
 secret_key: "dddd"                # Секретный ключ приложения
 Управление vault:
