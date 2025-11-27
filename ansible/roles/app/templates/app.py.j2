@@ -1,0 +1,83 @@
+import os
+from flask import Flask, render_template, request, redirect, url_for
+import mysql.connector
+from mysql.connector import Error
+
+app = Flask(__name__)
+
+# Database configuration
+db_config = {
+    'host': '{{ db_host }}',
+    'database': '{{ db_name }}',
+    'user': '{{ db_user }}',
+    'password': '{{ db_password }}'
+}
+
+def get_db_connection():
+    try:
+        connection = mysql.connector.connect(**db_config)
+        return connection
+    except Error as e:
+        print(f"Error connecting to MySQL: {e}")
+        return None
+
+@app.route("/")
+def main():
+    return "Welcome!"
+
+@app.route('/how are you')
+def hello():
+    return 'I am good, how about you?'
+
+@app.route('/employees')
+def employees():
+    connection = get_db_connection()
+    if connection:
+        try:
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute("SELECT * FROM employees")
+            employees = cursor.fetchall()
+            cursor.close()
+            connection.close()
+            
+            html = "<h1>Employee Management System</h1>"
+            html += "<h2>Employees List:</h2>"
+            html += "<table border='1'><tr><th>ID</th><th>Name</th><th>Position</th></tr>"
+            for employee in employees:
+                html += f"<tr><td>{employee['id']}</td><td>{employee['name']}</td><td>{employee['position']}</td></tr>"
+            html += "</table>"
+            html += f"<p>Total employees: {len(employees)}</p>"
+            html += "<p><em>Connected to MySQL database</em></p>"
+            return html
+        except Error as e:
+            return f"<h1>Error reading from database:</h1><p>{e}</p>"
+    else:
+        return "<h1>Error: Cannot connect to database</h1>"
+
+@app.route('/health')
+def health():
+    connection = get_db_connection()
+    if connection:
+        connection.close()
+        return "OK - Database Connected"
+    else:
+        return "ERROR - Database Connection Failed", 500
+
+@app.route('/api/status')
+def api_status():
+    import socket
+    import time
+    connection = get_db_connection()
+    db_status = "connected" if connection else "disconnected"
+    if connection:
+        connection.close()
+    
+    return {
+        "status": "healthy",
+        "server": socket.gethostname(),
+        "database": db_status,
+        "timestamp": time.time()
+    }
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)

@@ -1,0 +1,44 @@
+---
+- name: Create directory for SSL certificates
+  file:
+    path: /etc/haproxy/ssl
+    state: directory
+    owner: haproxy
+    group: haproxy
+    mode: 0750
+  become: yes
+  tags: ssl
+
+- name: Generate self-signed SSL certificate
+  openssl_certificate:
+    path: /etc/haproxy/ssl/haproxy.pem
+    privatekey_path: /etc/haproxy/ssl/haproxy.key
+    csr_path: /etc/haproxy/ssl/haproxy.csr
+    provider: selfsigned
+    country_name: "{{ ssl_country }}"
+    state_or_province_name: "{{ ssl_state }}"
+    locality_name: "{{ ssl_locality }}"
+    organization_name: "{{ ssl_organization }}"
+    common_name: "{{ ssl_common_name }}"
+    force: yes
+    days: "{{ ssl_days }}"
+  become: yes
+  tags: ssl
+
+- name: Combine certificate and key for HAProxy
+  shell: |
+    cat /etc/haproxy/ssl/haproxy.pem /etc/haproxy/ssl/haproxy.key > /etc/haproxy/ssl/haproxy-combined.pem
+  args:
+    creates: /etc/haproxy/ssl/haproxy-combined.pem
+  become: yes
+  tags: ssl
+
+- name: Set proper permissions for SSL files
+  file:
+    path: /etc/haproxy/ssl
+    owner: haproxy
+    group: haproxy
+    recurse: yes
+    mode: 0640
+  become: yes
+  tags: ssl

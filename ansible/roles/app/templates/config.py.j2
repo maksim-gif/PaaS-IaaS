@@ -1,0 +1,10 @@
+import os
+
+class Config:
+    {% if secret_key is defined %}
+    SECRET_KEY = '{{ secret_key }}'
+    {% else %}
+    SECRET_KEY = os.urandom(24)
+    {% endif %}
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{{ db_user }}:{{ db_password }}@{{ db_host }}/{{ db_name }}'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False

@@ -1,0 +1,109 @@
+---
+- name: Install HAProxy
+  apt:
+    name: haproxy
+    state: present
+  become: yes
+
+- name: Create directory for SSL certificates
+  file:
+    path: /etc/haproxy/ssl
+    state: directory
+    owner: haproxy
+    group: haproxy
+    mode: 0750
+  become: yes
+  when: use_ssl
+
+- name: Install certbot for Let's Encrypt
+  apt:
+    name: [certbot, python3-certbot]
+    state: present
+  become: yes
+  when: use_letsencrypt
+
+- name: Stop HAProxy temporarily for certbot
+  systemd:
+    name: haproxy
+    state: stopped
+  become: yes
+  when: use_letsencrypt
+
+- name: Obtain Let's Encrypt certificate
+  command: |
+    certbot certonly --standalone --non-interactive --agree-tos \
+      --email {{ email }} \
+      -d {{ domain_name }} \
+      --preferred-challenges http
+  become: yes
+  when: use_letsencrypt
+  notify: restart haproxy
+
+- name: Start HAProxy after certbot
+  systemd:
+    name: haproxy
+    state: started
+  become: yes
+  when: use_letsencrypt
+
+- name: Combine Let's Encrypt certificate and key for HAProxy
+  shell: |
+    cat /etc/letsencrypt/live/{{ domain_name }}/fullchain.pem /etc/letsencrypt/live/{{ domain_name }}/privkey.pem > /etc/haproxy/ssl/haproxy-combined.pem
+  args:
+    creates: /etc/haproxy/ssl/haproxy-combined.pem
+  become: yes
+  when: use_letsencrypt
+
+- name: Generate self-signed SSL certificate (fallback)
+  command: |
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+      -keyout /etc/haproxy/ssl/haproxy.key \
+      -out /etc/haproxy/ssl/haproxy.pem \
+      -subj "/C=US/ST=State/L=City/O=Organization/CN=localhost"
+  args:
+    creates: /etc/haproxy/ssl/haproxy.pem
+  become: yes
+  when: use_ssl and not use_letsencrypt
+
+- name: Combine self-signed certificate and key for HAProxy
+  shell: |
+    cat /etc/haproxy/ssl/haproxy.pem /etc/haproxy/ssl/haproxy.key > /etc/haproxy/ssl/haproxy-combined.pem
+  args:
+    creates: /etc/haproxy/ssl/haproxy-combined.pem
+  become: yes
+  when: use_ssl and not use_letsencrypt
+
+- name: Set proper permissions on SSL certificates
+  file:
+    path: /etc/haproxy/ssl
+    owner: haproxy
+    group: haproxy
+    mode: 0750
+  become: yes
+  when: use_ssl
+
+- name: Configure HAProxy
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    backup: yes
+  become: yes
+  notify: restart haproxy
+
+- name: Enable HAProxy
+  systemd:
+    name: haproxy
+    enabled: yes
+    state: started
+  become: yes
+
+- name: Setup certbot renewal hook for HAProxy
+  copy:
+    content: |
+      #!/bin/bash
+      cat /etc/letsencrypt/live/{{ domain_name }}/fullchain.pem /etc/letsencrypt/live/{{ domain_name }}/privkey.pem > /etc/haproxy/ssl/haproxy-combined.pem
+      systemctl reload haproxy
+    dest: /etc/letsencrypt/renewal-hooks/deploy/haproxy.sh
+    mode: 0755
+  become: yes
+  when: use_letsencrypt

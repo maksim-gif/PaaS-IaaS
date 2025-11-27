@@ -1,0 +1,10 @@
+# SSL/TLS Configuration
+tune.ssl.default-dh-param 2048
+
+# Modern SSL configuration
+ssl-default-bind-ciphers {{ haproxy_ssl_ciphers }}
+ssl-default-bind-ciphersuites TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256
+ssl-default-bind-options no-sslv3 no-tlsv10 no-tlsv11
+ssl-default-server-ciphers {{ haproxy_ssl_ciphers }}
+ssl-default-server-ciphersuites TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256
+ssl-default-server-options no-sslv3 no-tlsv10 no-tlsv11

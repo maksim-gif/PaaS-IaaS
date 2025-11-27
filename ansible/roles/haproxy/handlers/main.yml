@@ -1,0 +1,10 @@
+---
+- name: restart haproxy
+  systemd:
+    name: haproxy
+    state: restarted
+  become: yes
+
+- name: reload haproxy
+  command: echo "reload" | socat stdio /var/run/haproxy/admin.sock
+  become: yes

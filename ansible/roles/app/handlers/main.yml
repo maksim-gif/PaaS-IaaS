@@ -1,0 +1,24 @@
+---
+- name: restart flaskapp
+  systemd:
+    name: flaskapp
+    state: restarted
+  become: yes
+
+- name: restart haproxy
+  systemd:
+    name: haproxy
+    state: restarted
+  become: yes
+
+- name: restart ssh
+  systemd:
+    name: ssh
+    state: restarted
+  become: yes
+
+- name: restart fail2ban
+  systemd:
+    name: fail2ban
+    state: restarted
+  become: yes

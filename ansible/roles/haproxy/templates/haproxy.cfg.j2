@@ -1,0 +1,42 @@
+global
+    daemon
+    maxconn 256
+    ssl-default-bind-ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384
+    ssl-default-bind-ciphersuites TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256
+    ssl-default-bind-options ssl-min-ver TLSv1.2 no-tls-tickets
+
+defaults
+    mode http
+    timeout connect 5000ms
+    timeout client 50000ms
+    timeout server 50000ms
+    option forwardfor
+    option httpchk
+    log global
+
+frontend http_front
+    bind *:80
+    {% if use_ssl %}
+    bind *:443 ssl crt /etc/haproxy/ssl/haproxy-combined.pem alpn h2,http/1.1
+    # Redirect HTTP to HTTPS
+    redirect scheme https code 301 if !{ ssl_fc }
+    # SSL security headers
+    http-response set-header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    {% endif %}
+
+    # Certbot challenge for renewal - must come before redirect
+    acl is_certbot path_beg /.well-known/acme-challenge/
+    use_backend certbot_backend if is_certbot
+
+    stats uri /haproxy?stats
+    default_backend http_back
+
+backend http_back
+    balance roundrobin
+    option httpchk GET /
+    http-check expect status 200
+    server app1 192.168.100.249:5000 check inter 10s fall 3 rise 2
+    server app2 192.168.100.192:5000 check inter 10s fall 3 rise 2
+
+backend certbot_backend
+    server certbot 127.0.0.1:8080

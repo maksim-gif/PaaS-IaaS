@@ -1,0 +1,53 @@
+# Обычные переменные
+app_dir: /opt/simple-webapp
+db_host: "212.111.86.216"
+db_name: "appdb"
+db_user: "appuser"
+use_ssl: true
+
+# Настройки для Let's Encrypt
+use_letsencrypt: true
+domain_name: "212-111-84-45.nip.io"
+email: "dodioi@yandex.ru"
+
+# Firewall settings
+allowed_ports:
+  - 22    # SSH
+  - 80    # HTTP
+  - 443   # HTTPS
+  - 5000  # Flask app
+
+# SSH hardening
+ssh_port: 22
+ssh_permit_root_login: "no"
+ssh_password_authentication: "no"
+
+# Fail2ban
+fail2ban_bantime: 3600
+fail2ban_findtime: 600
+fail2ban_maxretry: 3
+
+# App settings
+app_port: 5000
+
+# HAProxy settings
+haproxy_frontend_port: 80
+
+# SSL Settings
+haproxy_ssl_port: 443
+ssl_country: "RU"
+ssl_state: "Moscow"
+ssl_locality: "Moscow"
+ssl_organization: "MyCompany"
+ssl_common_name: "haproxy-local"
+ssl_days: 3650
+
+# App user for systemd service
+app_user: "ubuntu"
+
+# Database configuration
+db_port: 3306
+
+# Additional app settings
+flask_host: "0.0.0.0"
+flask_port: 5000

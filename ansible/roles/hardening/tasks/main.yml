@@ -1,0 +1,46 @@
+---
+- name: Install UFW and fail2ban
+  apt:
+    name: [ufw, fail2ban]
+    state: present
+  become: yes
+
+- name: Configure UFW - allow necessary ports
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop: "{{ allowed_ports }}"
+  become: yes
+
+- name: Enable UFW
+  ufw:
+    state: enabled
+    policy: deny
+  become: yes
+
+- name: Configure SSH hardening
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^{{ item.key }}"
+    line: "{{ item.key }} {{ item.value }}"
+    state: present
+  loop:
+    - { key: "PasswordAuthentication", value: "no" }
+    - { key: "PermitRootLogin", value: "no" }
+  notify: restart ssh
+  become: yes
+
+- name: Configure fail2ban for SSH
+  copy:
+    content: |
+      [sshd]
+      enabled = true
+      port = {{ ssh_port }}
+      filter = sshd
+      logpath = /var/log/auth.log
+      maxretry = {{ fail2ban_maxretry }}
+      bantime = {{ fail2ban_bantime }}
+    dest: /etc/fail2ban/jail.d/sshd.conf
+  notify: restart fail2ban
+  become: yes

@@ -1,0 +1,37 @@
+# Ansible managed - DO NOT EDIT MANUALLY
+
+Port {{ ssh_port }}
+Protocol 2
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key
+
+# Logging
+SyslogFacility AUTH
+LogLevel INFO
+
+# Authentication
+LoginGraceTime 60
+PermitRootLogin {{ ssh_permit_root_login }}
+StrictModes yes
+
+PubkeyAuthentication {{ ssh_public_key_authentication }}
+AuthorizedKeysFile .ssh/authorized_keys
+
+PasswordAuthentication {{ ssh_password_authentication }}
+PermitEmptyPasswords no
+ChallengeResponseAuthentication no
+
+# Security
+X11Forwarding no
+PrintMotd no
+AcceptEnv LANG LC_*
+Subsystem sftp /usr/lib/openssh/sftp-server
+
+# Additional security
+UsePAM yes
+AllowTcpForwarding no
+AllowAgentForwarding no
+MaxAuthTries 3
+ClientAliveInterval 300
+ClientAliveCountMax 2

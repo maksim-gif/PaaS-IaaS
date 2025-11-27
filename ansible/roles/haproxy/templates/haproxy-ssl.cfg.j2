@@ -1,0 +1,47 @@
+global
+    daemon
+    maxconn 256
+    ssl-default-bind-ciphersuites TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256
+    ssl-default-bind-options ssl-min-ver TLSv1.2 no-tls-tickets
+
+defaults
+    mode http
+    timeout connect 5000ms
+    timeout client 50000ms
+    timeout server 50000ms
+    option forwardfor
+    option httpchk
+
+# HTTP frontend with redirect to HTTPS
+frontend http_front
+    bind *:80
+    # Redirect to HTTPS
+    redirect scheme https code 301 if !{ ssl_fc }
+    
+    # Let's Encrypt challenge backend
+    acl letsencrypt-acl path_beg /.well-known/acme-challenge/
+    use_backend letsencrypt-backend if letsencrypt-acl
+
+    stats uri /haproxy?stats
+    default_backend http_back
+
+# HTTPS frontend
+frontend https_front
+    bind *:443 ssl crt /etc/ssl/{{ inventory_hostname }}/haproxy.pem
+    option httpclose
+    option forwardfor
+    
+    stats uri /haproxy?stats
+    default_backend http_back
+
+# Backend for Let's Encrypt challenges
+backend letsencrypt-backend
+    server letsencrypt 127.0.0.1:8888
+
+# Main backend
+backend http_back
+    balance roundrobin
+    option httpchk GET /
+    {% for server in haproxy_backend_servers %}
+    server {{ server.name }} {{ server.ip }}:{{ server.port }} check
+    {% endfor %}
