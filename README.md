@@ -12,41 +12,26 @@
 →
 [Flask App 2]
 
-text
+
 
 ## 📁 Структура проекта
 
-project_pass/
-├── ansible/ # Конфигурация Ansible
-│ ├── group_vars/all/ # Переменные для всех хостов
-│ │ ├── vars.yml # Открытые переменные
-│ │ └── vault.yml # Зашифрованные секреты
-│ ├── inventory/ # Инвентаризация хостов
-│ │ ├── hosts.yml # YAML инвентарь
-│ │ └── simple_hosts.ini # INI инвентарь
-│ ├── roles/ # Роли Ansible
-│ │ ├── app/ # Развертывание Flask приложения
-│ │ ├── haproxy/ # Настройка HAProxy + SSL
-│ │ └── hardening/ # Харденинг ОС
-│ └── playbook.yml # Основной плейбук
-├── terraform/ # Инфраструктура как код
-│ ├── main.tf # Основные ресурсы
+project/
+├── ansible/
+│ ├── group_vars/all/ # vars.yml, vault.yml
+│ ├── inventory/ # hosts.yml, simple_hosts.ini
+│ ├── roles/
+│ │ ├── app/ # Flask приложение
+│ │ ├── haproxy/ # Балансировщик + SSL
+│ │ └── hardening/ # Безопасность ОС
+│ └── playbook.yml
+├── terraform/
+│ ├── main.tf # Основная конфигурация
 │ ├── database.tf # База данных
 │ ├── variables.tf # Переменные
 │ ├── outputs.tf # Выходные данные
-│ └── vkcs_provider.tf # Провайдер VK Cloud
-└── README.md # Документация
-
-
-
-
-
-
-
-
-
-
-
+│ └── vkcs_provider.tf # Провайдер
+└── README.md
 
 ## 🚀 Быстрый старт
 
@@ -70,7 +55,7 @@ terraform apply [параметры как выше]
 2. Получение IP адресов
 После выполнения terraform apply вы получите выходные данные:
 
-text
+
 Outputs:
 
 application_urls = {
