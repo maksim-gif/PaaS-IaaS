@@ -44,10 +44,10 @@ terraform init
 
 # Планирование
 terraform plan \
-  -var="username=PanyutinMA23@st.ithub.ru" \
-  -var="password=19541024Fi" \
-  -var="project_id=259eb7c6129a46f6b01062f53d57b9f8" \
-  -var="lastname=PanyutinMA" \
+  -var="username=ВАШ_EMAIL" \
+  -var="password=ВАШ_ПАРОЛЬ" \
+  -var="project_id=ВАШ_PROJECT_ID" \
+  -var="lastname=ВАША_ФАМИЛИЯ" \
   -var="ssh_public_key=$(cat ~/.ssh/id_rsa.pub)"
 
 # Применение
