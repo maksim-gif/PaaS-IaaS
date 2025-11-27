@@ -145,7 +145,6 @@ Ansible Vault
 
 Содержимое vault.yml:
 ```
-
 db_password: "7h78gs.p70aG85wU0"  # Пароль MySQL (из variables.tf)
 secret_key: "dddd"                # Секретный ключ приложения
 Управление vault:
