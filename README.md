@@ -108,20 +108,25 @@ database:
 cd ansible
 
 # Очистка старых SSH ключей
+```
 ssh-keygen -f ~/.ssh/known_hosts -R '212.111.84.154'
 ssh-keygen -f ~/.ssh/known_hosts -R '212.111.86.216'  
 ssh-keygen -f ~/.ssh/known_hosts -R '212.111.84.45'
-
+```
 # Добавление новых ключей
+```
 ssh-keyscan 212.111.84.154 >> ~/.ssh/known_hosts
 ssh-keyscan 212.111.86.216 >> ~/.ssh/known_hosts
 ssh-keyscan 212.111.84.45 >> ~/.ssh/known_hosts
+```
 5. Запуск Ansible плейбука
 
 cd ansible
 
 # Запуск полного плейбука
+
 ansible-playbook -i inventory/hosts.yml playbook.yml --ask-vault-pass
+
 # Пароль vault: 1954
 🔐 Система паролей
 Пароль базы данных
